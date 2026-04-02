@@ -1,0 +1,66 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Genero {
+  id     Int     @id @default(autoincrement())
+  nome   String  @unique
+  filmes Filme[]
+}
+
+model Filme {
+  id                  Int      @id @default(autoincrement())
+  titulo              String
+  duracao             Int
+  classificacaoEtaria String
+  generoId            Int
+  genero              Genero   @relation(fields: [generoId], references: [id])
+  sessoes             Sessao[]
+}
+
+model Sala {
+  id         Int      @id @default(autoincrement())
+  numero     Int      @unique
+  capacidade Int
+  sessoes    Sessao[]
+}
+
+model Sessao {
+  id            Int      @id @default(autoincrement())
+  filmeId       Int
+  salaId        Int
+  horarioInicio DateTime
+  valorIngresso Float
+
+  filme Filme @relation(fields: [filmeId], references: [id])
+  sala  Sala  @relation(fields: [salaId], references: [id])
+
+  ingressos Ingresso[]
+}
+
+model Ingresso {
+  id        Int    @id @default(autoincrement())
+  sessaoId  Int
+  tipo      String
+  valorPago Float
+
+  sessao Sessao @relation(fields: [sessaoId], references: [id])
+}
+
+model LancheCombo {
+  id        Int     @id @default(autoincrement())
+  nome      String
+  descricao String
+  preco     Float
+}
+
+model Pedido {
+  id        Int      @id @default(autoincrement())
+  valorTotal Float
+  dataHora  DateTime @default(now())
+}
