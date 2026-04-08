@@ -1,16 +1,24 @@
-import { IsString, IsInt, Min } from 'class-validator';
+import { IsString, IsNumber } from 'class-validator';
 
 export class CreateFilmeDto {
   @IsString()
-  titulo: string;
-
-  @IsInt()
-  @Min(1)
-  duracao: number;
+  titulo!: string;
 
   @IsString()
-  classificacaoEtaria: string;
+  sinopse!: string;
 
-  @IsInt()
-  generoId: number;
+  @IsString()
+  classificacao!: string;
+
+  @IsNumber()
+  duracao!: number;
+
+  @IsString()
+  genero!: string;
+
+  @IsString()
+  dataInicioExibicao!: string;
+
+  @IsString()
+  dataFinalExibicao!: string;
 }

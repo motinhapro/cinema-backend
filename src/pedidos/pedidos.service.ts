@@ -34,8 +34,16 @@ export class PedidosService {
     });
   }
 
-  findAll() {
-    return this.prisma.pedido.findMany();
+  async findAll() {
+    const pedidos = await this.prisma.pedido.findMany();
+
+    return pedidos.map(p => ({
+      id: String(p.id),
+      dataCompra: p.dataHora.toISOString(),
+      valorTotal: p.valorTotal,
+      ingressosIds: [],
+      itensLanche: [],
+    }));
   }
 
   findOne(id: number) {

@@ -1,15 +1,20 @@
-import { IsInt, IsDateString, IsNumber } from 'class-validator';
+import { IsString, IsNumber, IsOptional } from 'class-validator';
+import { Type } from 'class-transformer';
 
 export class CreateSessaoDto {
-  @IsInt()
-  filmeId: number;
-
-  @IsInt()
-  salaId: number;
-
-  @IsDateString()
-  horarioInicio: string;
-
+  @Type(() => Number) // 🔥 ESSENCIAL
   @IsNumber()
-  valorIngresso: number;
+  filmeId!: number;
+
+  @Type(() => Number) // 🔥
+  @IsNumber()
+  salaId!: number;
+
+  @IsString()
+  horario!: string;
+
+  @IsOptional()
+  @Type(() => Number)
+  @IsNumber()
+  valorIngresso?: number;
 }

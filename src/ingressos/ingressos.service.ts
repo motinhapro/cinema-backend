@@ -25,13 +25,28 @@ export class IngressosService {
       throw new Error('Sala lotada');
     }
 
-    return this.prisma.ingresso.create({ data });
+    return this.prisma.ingresso.create({
+      data: {
+        sessaoId: data.sessaoId,
+        tipo: data.tipo,
+        valorPago: data.valor, // 🔥 corrigido
+        assento: data.assento,
+      },
+    });
   }
 
-  findAll() {
-    return this.prisma.ingresso.findMany({
-      include: { sessao: true },
+  async findAll(sessaoId?: number) {
+    const ingressos = await this.prisma.ingresso.findMany({
+      where: sessaoId ? { sessaoId } : {},
     });
+
+    return ingressos.map(i => ({
+      id: String(i.id),
+      sessaoId: String(i.sessaoId),
+      tipo: i.tipo,
+      valor: i.valorPago,
+      assento: i.assento,
+    }));
   }
 
   findOne(id: number) {
@@ -48,7 +63,15 @@ export class IngressosService {
     });
   }
 
-  remove(id: number) {
+  async remove(id: number) {
+    const ingresso = await this.prisma.ingresso.findUnique({
+      where: { id },
+    });
+
+    if (!ingresso) {
+      throw new Error('Ingresso não encontrado');
+    }
+
     return this.prisma.ingresso.delete({
       where: { id },
     });

@@ -8,26 +8,42 @@ export class LancheComboService {
 
   constructor(private prisma: PrismaService) {}
 
-  create(data) {
-    return this.prisma.lancheCombo.create({ data });
+  async create(data) {
+    return this.prisma.lancheCombo.create({
+      data: {
+        nome: data.nome,
+        descricao: data.descricao,
+        preco: Number(data.valorUnitario),
+      },
+    });
   }
 
-  findAll() {
-    return this.prisma.lancheCombo.findMany();
+  async findAll() {
+    const lanches = await this.prisma.lancheCombo.findMany();
+
+    return lanches.map(l => ({
+      id: String(l.id),
+      nome: l.nome,
+      descricao: l.descricao,
+      valorUnitario: l.preco,
+    }));
   }
 
   findOne(id: number) {
     return this.prisma.lancheCombo.findUnique({ where: { id } });
   }
 
-  update(id: number, data) {
+  async update(id: number, data: any) {
     return this.prisma.lancheCombo.update({
       where: { id },
-      data,
+      data: {
+        nome: data.nome,
+        preco: Number(data.valorUnitario),
+      },
     });
   }
 
-  remove(id: number) {
+  async remove(id: number) {
     return this.prisma.lancheCombo.delete({
       where: { id },
     });

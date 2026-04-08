@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, ParseIntPipe } from '@nestjs/common';
 import { FilmesService } from './filmes.service';
 import { CreateFilmeDto } from './dto/create-filme.dto';
 import { UpdateFilmeDto } from './dto/update-filme.dto';
@@ -23,8 +23,11 @@ export class FilmesController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateFilmeDto: UpdateFilmeDto) {
-    return this.filmesService.update(+id, updateFilmeDto);
+  async update(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() data: UpdateFilmeDto,
+  ) {
+    return this.filmesService.update(id, data);
   }
 
   @Delete(':id')

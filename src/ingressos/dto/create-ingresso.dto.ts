@@ -1,12 +1,18 @@
-import { IsInt, IsString, IsNumber } from 'class-validator';
+import { Type } from 'class-transformer';
+import { IsNumber, IsString } from 'class-validator';
 
 export class CreateIngressoDto {
-  @IsInt()
-  sessaoId: number;
+  @Type(() => Number)
+  @IsNumber()
+  sessaoId!: number;
 
   @IsString()
-  tipo: string;
+  tipo!: string;
 
+  @Type(() => Number)
   @IsNumber()
-  valorPago: number;
+  valor!: number;
+
+  @IsString()
+  assento!: string;
 }

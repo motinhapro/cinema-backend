@@ -2,11 +2,11 @@ import { IsString, IsNumber } from 'class-validator';
 
 export class CreateLancheComboDto {
   @IsString()
-  nome: string;
+  nome!: string;
 
   @IsString()
-  descricao: string;
+  descricao!: string;
 
   @IsNumber()
-  preco: number;
+  valorUnitario!: number; // 🔥 muda pra isso
 }

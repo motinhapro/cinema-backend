@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestjs/common';
 import { IngressosService } from './ingressos.service';
 import { CreateIngressoDto } from './dto/create-ingresso.dto';
 import { UpdateIngressoDto } from './dto/update-ingresso.dto';
@@ -13,8 +13,10 @@ export class IngressosController {
   }
 
   @Get()
-  findAll() {
-    return this.ingressosService.findAll();
+  findAll(@Query('sessaoId') sessaoId?: string) {
+    return this.ingressosService.findAll(
+      sessaoId ? Number(sessaoId) : undefined
+    );
   }
 
   @Get(':id')

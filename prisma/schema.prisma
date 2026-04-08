@@ -14,13 +14,18 @@ model Genero {
 }
 
 model Filme {
-  id                  Int      @id @default(autoincrement())
-  titulo              String
-  duracao             Int
-  classificacaoEtaria String
-  generoId            Int
-  genero              Genero   @relation(fields: [generoId], references: [id])
-  sessoes             Sessao[]
+  id                     Int      @id @default(autoincrement())
+  titulo                 String    
+  sinopse                String   @default("")
+  classificacaoEtaria    String
+  duracao                Int
+  dataInicioExibicao     DateTime   @default(now())
+  dataFinalExibicao      DateTime   @default(now())
+
+  generoId Int
+  genero   Genero @relation(fields: [generoId], references: [id])
+
+  sessoes Sessao[]
 }
 
 model Sala {
@@ -31,13 +36,13 @@ model Sala {
 }
 
 model Sessao {
-  id            Int      @id @default(autoincrement())
-  filmeId       Int
-  salaId        Int
-  horarioInicio DateTime
-  valorIngresso Float
+  id             Int      @id @default(autoincrement())
+  filmeId        Int      
+  salaId         Int
+  horarioInicio  DateTime
+  valorIngresso  Float
 
-  filme Filme @relation(fields: [filmeId], references: [id])
+  filme Filme @relation(fields: [filmeId], references: [id], onDelete: Cascade)
   sala  Sala  @relation(fields: [salaId], references: [id])
 
   ingressos Ingresso[]
@@ -48,8 +53,9 @@ model Ingresso {
   sessaoId  Int
   tipo      String
   valorPago Float
+  assento   String  @default("")
 
-  sessao Sessao @relation(fields: [sessaoId], references: [id])
+  sessao Sessao @relation(fields: [sessaoId], references: [id], onDelete: Cascade)
 }
 
 model LancheCombo {

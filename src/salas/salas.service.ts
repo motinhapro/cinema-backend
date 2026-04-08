@@ -12,22 +12,31 @@ export class SalasService {
   return this.prisma.sala.create({ data });
   }
 
-  findAll() {
-    return this.prisma.sala.findMany();
+  async findAll() {
+    const salas = await this.prisma.sala.findMany();
+
+    return salas.map(s => ({
+      id: String(s.id),
+      numero: s.numero,
+      capacidade: s.capacidade,
+    }));
   }
 
   findOne(id: number) {
     return this.prisma.sala.findUnique({ where: { id } });
   }
 
-  update(id: number, data) {
+  async update(id: number, data: any) {
     return this.prisma.sala.update({
       where: { id },
-      data,
+      data: {
+        ...(data.numero && { numero: data.numero }),
+        ...(data.capacidade && { capacidade: data.capacidade }),
+      },
     });
   }
 
-  remove(id: number) {
+  async remove(id: number) {
     return this.prisma.sala.delete({
       where: { id },
     });
