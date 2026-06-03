@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, BadRequestException, NotFoundException } from '@nestjs/common';
 import { CreateFilmeDto } from './dto/create-filme.dto';
 import { UpdateFilmeDto } from './dto/update-filme.dto';
 import { PrismaService } from '../prisma/prisma.service';
@@ -50,11 +50,22 @@ export class FilmesService {
   }));
 }
 
-  findOne(id: number) {
-    return this.prisma.filme.findUnique({
-      where: { id },
+ async findOne(id: number) {
+    
+    if (!id || isNaN(id)) {
+      throw new BadRequestException('O ID do filme fornecido é inválido ou está ausente.');
+    }
+
+    const filme = await this.prisma.filme.findUnique({
+      where: { id: id },
       include: { genero: true },
     });
+
+    if (!filme) {
+      throw new NotFoundException(`Filme com ID ${id} não encontrado.`);
+    }
+
+    return filme;
   }
 
   async update(id: number, data: UpdateFilmeDto) {

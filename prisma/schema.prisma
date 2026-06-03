@@ -7,6 +7,16 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model User {
+  id        Int      @id @default(autoincrement())
+  nome      String
+  email     String   @unique
+  senha     String
+  telefone  String   @default("")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
 model Genero {
   id     Int     @id @default(autoincrement())
   nome   String  @unique
@@ -14,13 +24,13 @@ model Genero {
 }
 
 model Filme {
-  id                     Int      @id @default(autoincrement())
-  titulo                 String    
-  sinopse                String   @default("")
-  classificacaoEtaria    String
-  duracao                Int
-  dataInicioExibicao     DateTime   @default(now())
-  dataFinalExibicao      DateTime   @default(now())
+  id                  Int      @id @default(autoincrement())
+  titulo              String
+  sinopse             String   @default("")
+  classificacaoEtaria String
+  duracao             Int
+  dataInicioExibicao  DateTime @default(now())
+  dataFinalExibicao   DateTime @default(now())
 
   generoId Int
   genero   Genero @relation(fields: [generoId], references: [id])
@@ -36,11 +46,11 @@ model Sala {
 }
 
 model Sessao {
-  id             Int      @id @default(autoincrement())
-  filmeId        Int      
-  salaId         Int
-  horarioInicio  DateTime
-  valorIngresso  Float
+  id            Int      @id @default(autoincrement())
+  filmeId       Int
+  salaId        Int
+  horarioInicio DateTime
+  valorIngresso Float
 
   filme Filme @relation(fields: [filmeId], references: [id], onDelete: Cascade)
   sala  Sala  @relation(fields: [salaId], references: [id])
@@ -49,24 +59,29 @@ model Sessao {
 }
 
 model Ingresso {
-  id        Int    @id @default(autoincrement())
+  id        Int     @id @default(autoincrement())
   sessaoId  Int
   tipo      String
   valorPago Float
   assento   String  @default("")
+  pedidoId  Int?
+  pedido    Pedido? @relation(fields: [pedidoId], references: [id])
 
   sessao Sessao @relation(fields: [sessaoId], references: [id], onDelete: Cascade)
 }
 
 model LancheCombo {
-  id        Int     @id @default(autoincrement())
+  id        Int      @id @default(autoincrement())
   nome      String
   descricao String
   preco     Float
+  pedidos   Pedido[]
 }
 
 model Pedido {
-  id        Int      @id @default(autoincrement())
+  id         Int           @id @default(autoincrement())
   valorTotal Float
-  dataHora  DateTime @default(now())
+  dataHora   DateTime      @default(now())
+  ingressos  Ingresso[]
+  lanches    LancheCombo[]
 }

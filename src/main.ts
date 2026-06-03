@@ -12,14 +12,16 @@ async function bootstrap() {
     }),
   );
   
-  app.enableCors({
-    origin: 'http://localhost:5173',
-  });
+ app.enableCors({
+  origin: true,
+  credentials: true,
+});
 
   const config = new DocumentBuilder()
     .setTitle('Cinema API')
     .setDescription('API do sistema de cinema')
     .setVersion('1.0')
+    .addBearerAuth()
     .build();
 
   const document = SwaggerModule.createDocument(app, config);

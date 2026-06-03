@@ -1,0 +1,30 @@
+{
+  "expo": {
+    "name": "Cinema Mobile",
+    "slug": "cinema-mobile",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "dark",
+    "scheme": "cinema-mobile",
+    "splash": {
+      "backgroundColor": "#141414"
+    },
+    "platforms": ["ios", "android", "web"],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.cinema.mobile"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#141414"
+      },
+      "package": "com.cinema.mobile"
+    },
+    "plugins": [
+      "expo-router",
+      "expo-secure-store",
+      "expo-sqlite"
+    ]
+  }
+}

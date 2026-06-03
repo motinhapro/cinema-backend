@@ -6,47 +6,55 @@ export class SessoesService {
   constructor(private prisma: PrismaService) {}
 
   async create(data: any) {
+    const idFilme = Number(data.filmeId);
+    const idSala = Number(data.salaId);
+    const preco = Number(data.valorIngresso ?? 20);
     const novaInicio = new Date(data.horario);
 
+    if (isNaN(idFilme) || isNaN(idSala)) {
+      throw new BadRequestException('ID do filme ou ID da sala inválidos.');
+    }
+
+    // 1. Valida se o Filme existe
     const filme = await this.prisma.filme.findUnique({
-      where: { id: Number(data.filmeId) },
+      where: { id: idFilme },
     });
 
     if (!filme) {
       throw new NotFoundException('Filme não encontrado');
     }
 
-    const novaFim = new Date(
-      novaInicio.getTime() + filme.duracao * 60000,
-    );
+    const sala = await this.prisma.sala.findUnique({
+      where: { id: idSala },
+    });
 
-    // 🔥 buscar sessões da mesma sala
+    if (!sala) {
+      throw new NotFoundException(`A sala com o ID ${idSala} não existe no banco de dados. Verifique a lista de salas disponíveis.`);
+    }
+
+    const novaFim = new Date(novaInicio.getTime() + filme.duracao * 60000);
+
     const sessoes = await this.prisma.sessao.findMany({
-      where: {
-        salaId: Number(data.salaId),
-      },
-      include: {
-        filme: true,
-      },
+      where: { salaId: idSala },
+      include: { filme: true },
     });
 
     for (const sessao of sessoes) {
       const inicio = new Date(sessao.horarioInicio);
-      const fim = new Date(
-        inicio.getTime() + sessao.filme.duracao * 60000,
-      );
+      const fim = new Date(inicio.getTime() + sessao.filme.duracao * 60000);
 
       if (novaInicio < fim && novaFim > inicio) {
         throw new BadRequestException('Conflito de horário na sala');
       }
     }
 
+    // 4. Criação segura
     return this.prisma.sessao.create({
       data: {
-        filmeId: Number(data.filmeId),
-        salaId: Number(data.salaId),
+        filmeId: idFilme,
+        salaId: idSala,
         horarioInicio: novaInicio,
-        valorIngresso: data.valorIngresso ?? 20
+        valorIngresso: preco
       },
     });
   }
@@ -64,6 +72,7 @@ export class SessoesService {
       filmeId: String(s.filmeId),
       salaId: String(s.salaId),
       horario: s.horarioInicio.toISOString(),
+      valorIngresso: s.valorIngresso ? Number(s.valorIngresso) : 20.00,
       filme: s.filme, // 🔥
       sala: s.sala,   // 🔥
     }));
@@ -91,29 +100,56 @@ export class SessoesService {
   }
 
   async update(id: number, data: any) {
+    if (!id || isNaN(id)) {
+      throw new BadRequestException('ID da sessão inválido ou ausente.');
+    }
+
+    const prismaUpdateData: any = {};
+
+    // 1. Trata Horário
+    if (data.horarioInicio) {
+      const dataValida = new Date(data.horarioInicio);
+      if (isNaN(dataValida.getTime())) {
+        throw new BadRequestException('Formato de data/horário inválido.');
+      }
+      prismaUpdateData.horarioInicio = dataValida;
+    }
+
+    // 2. Trata Preço do Ingresso (Adicionado 👇)
+    if (data.valorIngresso !== undefined && !isNaN(Number(data.valorIngresso))) {
+      prismaUpdateData.valorIngresso = Number(data.valorIngresso);
+    }
+
+    // 3. Trata Relacionamento com Filme
+    if (data.filmeId && !isNaN(Number(data.filmeId))) {
+      prismaUpdateData.filme = {
+        connect: { id: Number(data.filmeId) },
+      };
+    }
+
+    // 4. Trata Relacionamento com Sala
+    if (data.salaId && !isNaN(Number(data.salaId))) {
+      prismaUpdateData.sala = {
+        connect: { id: Number(data.salaId) },
+      };
+    }
+
+    // 🚨 DEBUG: Coloque esse console.log aqui para inspecionar se os dados estão chegando no service!
+    console.log("=== DADOS ENVIADOS AO PRISMA NO UPDATE ===", prismaUpdateData);
+
     return this.prisma.sessao.update({
       where: { id },
-      data: {
-        horarioInicio: data.horarioInicio,
-
-        ...(data.filmeId && {
-          filme: {
-            connect: { id: data.filmeId },
-          },
-        }),
-
-        ...(data.salaId && {
-          sala: {
-            connect: { id: data.salaId },
-          },
-        }),
-      },
+      data: prismaUpdateData,
     });
   }
 
   async remove(id: number) {
+    if (!id || isNaN(id)) {
+      throw new BadRequestException('ID da sessão inválido para remoção.');
+    }
+
     return this.prisma.sessao.delete({
       where: { id },
     });
-  }
+  } 
 }
